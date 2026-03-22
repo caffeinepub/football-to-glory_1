@@ -1,0 +1,123 @@
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/assets/fonts/BricolageGrotesque.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Figtree";
+  src: url("/assets/fonts/Figtree.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 18 5% 8%;
+    --foreground: 120 5% 95%;
+    --card: 18 5% 11%;
+    --card-foreground: 120 5% 95%;
+    --popover: 18 5% 10%;
+    --popover-foreground: 120 5% 95%;
+    --primary: 142 0.2 148;
+    --primary-foreground: 18 5% 5%;
+    --secondary: 18 5% 16%;
+    --secondary-foreground: 120 5% 90%;
+    --muted: 18 5% 14%;
+    --muted-foreground: 120 3% 55%;
+    --accent: 142 0.2 148;
+    --accent-foreground: 18 5% 5%;
+    --destructive: 25 0.22 27;
+    --destructive-foreground: 120 5% 95%;
+    --border: 18 5% 18%;
+    --input: 18 5% 16%;
+    --ring: 142 0.2 148;
+    --radius: 0.5rem;
+
+    /* Football green palette in OKLCH raw values */
+    --emerald: 0.72 0.2 148;
+    --emerald-dim: 0.55 0.18 148;
+    --emerald-bright: 0.82 0.22 148;
+    --gold: 0.78 0.15 80;
+    --pitch-dark: 0.08 0.02 148;
+    --stadium-bg: 0.1 0.015 230;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    background-color: oklch(var(--pitch-dark));
+    color: oklch(var(--foreground));
+    font-family: "Figtree", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.pitch-bg {
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    oklch(0.12 0.06 148 / 0.4) 0%,
+    oklch(0.08 0.02 148) 70%
+  );
+}
+
+.card-glow {
+  box-shadow: 0 0 0 1px oklch(0.72 0.2 148 / 0.1), 0 4px 24px
+    oklch(0.72 0.2 148 / 0.05);
+}
+
+.card-glow:hover {
+  box-shadow: 0 0 0 1px oklch(0.72 0.2 148 / 0.3), 0 8px 32px
+    oklch(0.72 0.2 148 / 0.15);
+  transition: box-shadow 0.3s ease;
+}
+
+.trophy-gradient {
+  background: linear-gradient(135deg, oklch(0.78 0.15 80), oklch(0.65 0.12 60));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.green-gradient {
+  background: linear-gradient(
+    135deg,
+    oklch(0.82 0.22 148),
+    oklch(0.65 0.18 148)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.live-pulse {
+  animation: pulse-red 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-red {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+.scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
