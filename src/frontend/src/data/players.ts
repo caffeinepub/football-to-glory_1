@@ -2440,10 +2440,23 @@ export const allPlayers: Player[] = [
   },
 ];
 
-export const allPlayersExtended = [
+// Merge all sources and deduplicate by name (case-insensitive).
+// When duplicates exist, keep the entry with the most goals (most complete data).
+const _rawPlayers = [
   ...allPlayers,
   ...extraPlayers,
   ...worldNationalPlayers,
   ...leaguePlayers,
   ...morePlayers,
 ];
+
+const _dedupeMap = new Map<string, Player>();
+for (const p of _rawPlayers) {
+  const key = p.name.trim().toLowerCase();
+  const existing = _dedupeMap.get(key);
+  if (!existing || p.goals > existing.goals) {
+    _dedupeMap.set(key, p);
+  }
+}
+
+export const allPlayersExtended: Player[] = Array.from(_dedupeMap.values());

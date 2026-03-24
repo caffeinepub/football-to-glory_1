@@ -25,6 +25,7 @@ import CountryDetailModal from "./components/CountryDetail";
 import IndiaSection from "./components/IndiaSection";
 import LeagueBrowser from "./components/LeagueBrowser";
 import LiveScores from "./components/LiveScores";
+import LoginPage from "./components/LoginPage";
 import PlayersSection from "./components/PlayersSection";
 import QuizPage from "./components/QuizPage";
 import RandomTrivia from "./components/RandomTrivia";
@@ -33,7 +34,6 @@ import UCLSeasons from "./components/UCLSeasons";
 import { allCountries } from "./data/countries";
 import { LEGENDS } from "./data/legends";
 import { allPlayersExtended } from "./data/players";
-import { useInternetIdentity } from "./hooks/useInternetIdentity";
 
 // ─── DATA ───────────────────────────────────────────────────────────────────
 
@@ -1995,7 +1995,12 @@ const confColor = (conf: string) => {
 // ─── MAIN APP ────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab] = useState("worldcup");
-  const { identity, login, clear, isLoginSuccess } = useInternetIdentity();
+  const [currentUser, setCurrentUser] = useState<{ email: string } | null>(
+    () => {
+      const saved = localStorage.getItem("ftg_user_email");
+      return saved ? { email: saved } : null;
+    },
+  );
 
   // World Cup filter
   const [wcFilter, setWcFilter] = useState("ALL");
@@ -2014,6 +2019,16 @@ export default function App() {
     { id: "trivia", label: "Trivia", icon: "⚡" },
     { id: "leagues", label: "Leagues", icon: "🏟️" },
   ];
+
+  // ─── LOGIN GATE ──────────────────────────────────────────────────────────────
+  if (!currentUser) {
+    return <LoginPage onLogin={(email) => setCurrentUser({ email })} />;
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("ftg_user_email");
+    setCurrentUser(null);
+  };
 
   return (
     <div
@@ -2048,30 +2063,18 @@ export default function App() {
                 Complete football history 1950–2026 • All players of the world
               </p>
             </div>
-            <div className="ml-auto">
-              {isLoginSuccess ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-white/60 text-xs hidden sm:block">
-                    {identity?.getPrincipal().toText().slice(0, 12)}...
-                  </span>
-                  <button
-                    type="button"
-                    onClick={clear}
-                    className="px-4 py-2 rounded-lg text-sm font-medium border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-all"
-                  >
-                    Log Out
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={login}
-                  className="px-4 py-2 rounded-lg text-sm font-bold text-black transition-all"
-                  style={{ background: "oklch(0.72 0.2 148)" }}
-                >
-                  Sign In / Sign Up
-                </button>
-              )}
+            <div className="ml-auto flex items-center gap-3">
+              <span className="text-white/60 text-xs hidden sm:block">
+                ⚽ {currentUser.email.split("@")[0]}
+              </span>
+              <button
+                type="button"
+                data-ocid="header.logout.button"
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-all"
+              >
+                Log Out
+              </button>
             </div>
           </div>
         </div>
@@ -2214,7 +2217,7 @@ export default function App() {
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.25 }}
             >
-              <QuizPage />
+              <QuizPage userEmail={currentUser.email} />
             </motion.div>
           )}
           {activeTab === "countries" && (
@@ -2237,7 +2240,7 @@ export default function App() {
               transition={{ duration: 0.25 }}
               className="py-4"
             >
-              <RandomTrivia />
+              <RandomTrivia userEmail={currentUser.email} />
             </motion.div>
           )}
           {activeTab === "leagues" && (

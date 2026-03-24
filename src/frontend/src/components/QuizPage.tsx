@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useActor } from "../hooks/useActor";
+import LeaderboardModal from "./LeaderboardModal";
 
 interface QuizQuestion {
   id: number;
@@ -739,7 +741,10 @@ const CATEGORIES = [
 ];
 const TIMER_SECONDS = 30;
 
-export default function QuizPage() {
+interface QuizPageProps {
+  userEmail: string;
+}
+export default function QuizPage({ userEmail }: QuizPageProps) {
   const [gameState, setGameState] = useState<"category" | "playing" | "result">(
     "category",
   );
@@ -751,6 +756,8 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const { actor } = useActor();
 
   const currentQuestion = questions[currentIndex];
 
@@ -759,9 +766,7 @@ export default function QuizPage() {
       category === "All"
         ? QUESTIONS
         : QUESTIONS.filter((q) => q.category === category);
-    const shuffled = [...pool]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, Math.min(15, pool.length));
+    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 10);
     setQuestions(shuffled);
     setCurrentIndex(0);
     setSelected(null);
@@ -810,6 +815,14 @@ export default function QuizPage() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [gameState, selected]);
+
+  // Save score when game ends - actor/userEmail/score are stable refs
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional
+  useEffect(() => {
+    if (gameState === "result" && actor && userEmail) {
+      actor.saveScore(userEmail, BigInt(score), "quiz").catch(() => {});
+    }
+  }, [gameState]);
 
   const percentage =
     questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
@@ -937,23 +950,39 @@ export default function QuizPage() {
                   );
                 })}
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3">
                 <Button
-                  data-ocid="quiz.play_again.button"
-                  onClick={() => startQuiz(selectedCategory)}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-500"
+                  data-ocid="quiz.leaderboard.button"
+                  onClick={() => setLeaderboardOpen(true)}
+                  className="w-full py-4 font-bold text-black"
+                  style={{ background: "oklch(0.72 0.2 148)" }}
                 >
-                  🔄 Play Again
+                  🏆 View Leaderboard
                 </Button>
-                <Button
-                  data-ocid="quiz.change_category.button"
-                  variant="outline"
-                  onClick={() => setGameState("category")}
-                  className="flex-1 border-white/20 text-white hover:bg-white/10"
-                >
-                  🗂️ Change Category
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    data-ocid="quiz.play_again.button"
+                    onClick={() => startQuiz(selectedCategory)}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-500"
+                  >
+                    🔄 Play Again
+                  </Button>
+                  <Button
+                    data-ocid="quiz.change_category.button"
+                    variant="outline"
+                    onClick={() => setGameState("category")}
+                    className="flex-1 border-white/20 text-white hover:bg-white/10"
+                  >
+                    🗂️ Change Category
+                  </Button>
+                </div>
               </div>
+              <LeaderboardModal
+                isOpen={leaderboardOpen}
+                onClose={() => setLeaderboardOpen(false)}
+                category="quiz"
+                userEmail={userEmail}
+              />
             </CardContent>
           </Card>
         </motion.div>

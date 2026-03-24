@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, RefreshCw, XCircle, Zap } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
+import { useActor } from "../hooks/useActor";
+import LeaderboardModal from "./LeaderboardModal";
 
 interface TriviaItem {
   question: string;
@@ -218,21 +220,53 @@ const TRIVIA_BANK: TriviaItem[] = [
   },
 ];
 
-export default function RandomTrivia() {
-  const [currentIndex, setCurrentIndex] = useState(() =>
-    Math.floor(Math.random() * TRIVIA_BANK.length),
-  );
+interface RandomTriviaProps {
+  userEmail: string;
+}
+export default function RandomTrivia({ userEmail }: RandomTriviaProps) {
+  const SESSION_SIZE = 10;
+  const [session, setSession] = useState<TriviaItem[]>(() => {
+    const shuffled = [...TRIVIA_BANK].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, SESSION_SIZE);
+  });
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const [liked, setLiked] = useState<boolean | null>(null);
+  const [knew, setKnew] = useState<boolean | null>(null);
+  const [knewCount, setKnewCount] = useState(0);
+  const [done, setDone] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const { actor } = useActor();
 
-  const trivia = TRIVIA_BANK[currentIndex];
+  const trivia = session[currentIndex];
+
+  const handleKnew = (val: boolean) => {
+    if (knew !== null) return;
+    setKnew(val);
+    if (val) setKnewCount((c) => c + 1);
+  };
 
   const next = () => {
-    let idx = Math.floor(Math.random() * TRIVIA_BANK.length);
-    if (idx === currentIndex) idx = (idx + 1) % TRIVIA_BANK.length;
-    setCurrentIndex(idx);
+    if (currentIndex + 1 >= SESSION_SIZE) {
+      // Save score
+      if (actor && userEmail) {
+        actor.saveScore(userEmail, BigInt(knewCount), "trivia").catch(() => {});
+      }
+      setDone(true);
+    } else {
+      setCurrentIndex((i) => i + 1);
+      setRevealed(false);
+      setKnew(null);
+    }
+  };
+
+  const restart = () => {
+    const shuffled = [...TRIVIA_BANK].sort(() => Math.random() - 0.5);
+    setSession(shuffled.slice(0, SESSION_SIZE));
+    setCurrentIndex(0);
     setRevealed(false);
-    setLiked(null);
+    setKnew(null);
+    setKnewCount(0);
+    setDone(false);
   };
 
   const categoryColors: Record<string, string> = {
@@ -248,13 +282,58 @@ export default function RandomTrivia() {
     Africa: "bg-green-500/20 text-green-400",
   };
 
+  if (done) {
+    return (
+      <div className="max-w-2xl mx-auto text-center py-12">
+        <div className="text-6xl mb-4">🧠</div>
+        <h2
+          className="text-3xl font-bold mb-2"
+          style={{ color: "oklch(0.72 0.2 148)" }}
+        >
+          Trivia Complete!
+        </h2>
+        <p className="text-white/60 text-lg mb-6">
+          You knew {knewCount} out of {SESSION_SIZE} facts!
+        </p>
+        <div className="flex flex-col gap-3 max-w-xs mx-auto">
+          <button
+            type="button"
+            data-ocid="trivia.leaderboard.button"
+            onClick={() => setLeaderboardOpen(true)}
+            className="w-full py-4 rounded-xl font-bold text-black text-base transition-all hover:scale-[1.02]"
+            style={{
+              background: "oklch(0.72 0.2 148)",
+              boxShadow: "0 0 24px oklch(0.72 0.2 148 / 0.3)",
+            }}
+          >
+            🏆 View Leaderboard
+          </button>
+          <button
+            type="button"
+            data-ocid="trivia.restart.button"
+            onClick={restart}
+            className="w-full py-3 rounded-xl font-semibold border border-white/20 text-white/80 hover:bg-white/10 transition-all text-sm"
+          >
+            🔄 Play Again
+          </button>
+        </div>
+        <LeaderboardModal
+          isOpen={leaderboardOpen}
+          onClose={() => setLeaderboardOpen(false)}
+          category="trivia"
+          userEmail={userEmail}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center gap-2 mb-6">
         <Zap className="w-6 h-6 text-yellow-400" />
         <h2 className="text-2xl font-bold text-yellow-400">Random Trivia</h2>
         <span className="text-gray-500 text-sm ml-2">
-          {TRIVIA_BANK.length} facts
+          Trivia {currentIndex + 1} of {SESSION_SIZE}
         </span>
       </div>
 
@@ -317,9 +396,9 @@ export default function RandomTrivia() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setLiked(true)}
+                    onClick={() => handleKnew(true)}
                     className={`flex-1 border ${
-                      liked === true
+                      knew === true
                         ? "border-green-500 bg-green-500/10 text-green-400"
                         : "border-gray-700 text-gray-400 hover:text-green-400 hover:border-green-600"
                     }`}
@@ -329,9 +408,9 @@ export default function RandomTrivia() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setLiked(false)}
+                    onClick={() => handleKnew(false)}
                     className={`flex-1 border ${
-                      liked === false
+                      knew === false
                         ? "border-red-500 bg-red-500/10 text-red-400"
                         : "border-gray-700 text-gray-400 hover:text-red-400 hover:border-red-600"
                     }`}
@@ -345,15 +424,20 @@ export default function RandomTrivia() {
         </motion.div>
       </AnimatePresence>
 
-      <div className="mt-4 flex justify-center">
-        <Button
-          onClick={next}
-          variant="ghost"
-          className="text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500"
-        >
-          <RefreshCw className="w-4 h-4 mr-2" /> Next Trivia
-        </Button>
-      </div>
+      {revealed && (
+        <div className="mt-4 flex justify-center">
+          <Button
+            data-ocid="trivia.next.button"
+            onClick={next}
+            className="px-8 py-3 font-bold text-black rounded-xl"
+            style={{ background: "oklch(0.72 0.2 148)" }}
+          >
+            {currentIndex + 1 >= SESSION_SIZE
+              ? "See Results 🎉"
+              : "Next Trivia →"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
