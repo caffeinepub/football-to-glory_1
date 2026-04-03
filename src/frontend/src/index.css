@@ -26,28 +26,33 @@
     --card-foreground: 120 5% 95%;
     --popover: 18 5% 10%;
     --popover-foreground: 120 5% 95%;
-    --primary: 142 0.2 148;
-    --primary-foreground: 18 5% 5%;
-    --secondary: 18 5% 16%;
-    --secondary-foreground: 120 5% 90%;
-    --muted: 18 5% 14%;
-    --muted-foreground: 120 3% 55%;
-    --accent: 142 0.2 148;
-    --accent-foreground: 18 5% 5%;
-    --destructive: 25 0.22 27;
-    --destructive-foreground: 120 5% 95%;
-    --border: 18 5% 18%;
-    --input: 18 5% 16%;
-    --ring: 142 0.2 148;
-    --radius: 0.5rem;
+    --primary: 0.72 0.2 148;
+    --primary-foreground: 0.08 0.02 148;
+    --secondary: 0.16 0.02 148;
+    --secondary-foreground: 0.9 0.05 148;
+    --muted: 0.14 0.02 148;
+    --muted-foreground: 0.55 0.03 148;
+    --accent: 0.72 0.2 148;
+    --accent-foreground: 0.08 0.02 148;
+    --destructive: 0.45 0.22 27;
+    --destructive-foreground: 0.95 0.05 148;
+    --border: 0.22 0.03 148;
+    --input: 0.16 0.02 148;
+    --ring: 0.72 0.2 148;
+    --radius: 0.625rem;
 
     /* Football green palette in OKLCH raw values */
     --emerald: 0.72 0.2 148;
     --emerald-dim: 0.55 0.18 148;
     --emerald-bright: 0.82 0.22 148;
     --gold: 0.78 0.15 80;
-    --pitch-dark: 0.08 0.02 148;
-    --stadium-bg: 0.1 0.015 230;
+    --pitch-dark: 0.09 0.025 148;
+    --stadium-bg: 0.11 0.02 230;
+    --card-bg: 0.13 0.03 148;
+  }
+
+  .dark {
+    color-scheme: dark;
   }
 }
 
@@ -55,35 +60,39 @@
   * {
     @apply border-border;
   }
+  html {
+    color-scheme: dark;
+  }
   body {
     background-color: oklch(var(--pitch-dark));
     color: oklch(var(--foreground));
     font-family: "Figtree", sans-serif;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 }
 
 .pitch-bg {
   background: radial-gradient(
     ellipse at 50% 0%,
-    oklch(0.12 0.06 148 / 0.4) 0%,
-    oklch(0.08 0.02 148) 70%
+    oklch(0.15 0.06 148 / 0.5) 0%,
+    oklch(0.09 0.025 148) 70%
   );
 }
 
 .card-glow {
-  box-shadow: 0 0 0 1px oklch(0.72 0.2 148 / 0.1), 0 4px 24px
-    oklch(0.72 0.2 148 / 0.05);
+  box-shadow: 0 0 0 1px oklch(0.72 0.2 148 / 0.08), 0 4px 24px
+    oklch(0.72 0.2 148 / 0.04);
 }
 
 .card-glow:hover {
-  box-shadow: 0 0 0 1px oklch(0.72 0.2 148 / 0.3), 0 8px 32px
-    oklch(0.72 0.2 148 / 0.15);
-  transition: box-shadow 0.3s ease;
+  box-shadow: 0 0 0 1px oklch(0.72 0.2 148 / 0.25), 0 8px 32px
+    oklch(0.72 0.2 148 / 0.12);
+  transition: box-shadow 0.25s ease;
 }
 
 .trophy-gradient {
-  background: linear-gradient(135deg, oklch(0.78 0.15 80), oklch(0.65 0.12 60));
+  background: linear-gradient(135deg, oklch(0.85 0.18 82), oklch(0.68 0.14 62));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -98,6 +107,19 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.hero-bg {
+  background: radial-gradient(
+      ellipse 90% 70% at 50% 0%,
+      oklch(0.18 0.1 148 / 0.6),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 80% 60%,
+      oklch(0.14 0.06 148 / 0.3),
+      transparent
+    ), oklch(0.09 0.025 148);
 }
 
 .live-pulse {
@@ -120,4 +142,22 @@
 .scroll-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Pitch line decorations */
+.pitch-lines {
+  background-image: repeating-linear-gradient(
+      0deg,
+      oklch(0.72 0.2 148 / 0.05) 0px,
+      oklch(0.72 0.2 148 / 0.05) 1px,
+      transparent 1px,
+      transparent 80px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      oklch(0.72 0.2 148 / 0.03) 0px,
+      oklch(0.72 0.2 148 / 0.03) 1px,
+      transparent 1px,
+      transparent 120px
+    );
 }

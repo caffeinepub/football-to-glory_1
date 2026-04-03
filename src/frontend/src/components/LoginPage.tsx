@@ -79,21 +79,35 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: "oklch(0.08 0.02 148)" }}
+      style={{ background: "oklch(0.12 0.08 148)" }}
     >
-      {/* Background */}
+      {/* Football pitch gradient background */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 60% 50% at 20% 30%, oklch(0.18 0.12 148 / 0.4), transparent), radial-gradient(ellipse 50% 60% at 80% 70%, oklch(0.15 0.1 155 / 0.3), transparent)",
+            "radial-gradient(ellipse 80% 60% at 50% 50%, oklch(0.22 0.14 148 / 0.7), transparent), radial-gradient(ellipse 60% 50% at 20% 30%, oklch(0.18 0.12 148 / 0.5), transparent), radial-gradient(ellipse 50% 60% at 80% 70%, oklch(0.15 0.1 155 / 0.4), transparent)",
         }}
       />
+      {/* Pitch lines pattern */}
       <div
-        className="absolute inset-0 opacity-5"
+        className="absolute inset-0 opacity-8"
         style={{
           backgroundImage:
-            "repeating-linear-gradient(0deg, oklch(0.72 0.2 148) 0px, oklch(0.72 0.2 148) 1px, transparent 1px, transparent 60px)",
+            "repeating-linear-gradient(0deg, oklch(0.72 0.2 148 / 0.12) 0px, oklch(0.72 0.2 148 / 0.12) 1px, transparent 1px, transparent 80px), repeating-linear-gradient(90deg, oklch(0.72 0.2 148 / 0.06) 0px, oklch(0.72 0.2 148 / 0.06) 1px, transparent 1px, transparent 120px)",
+        }}
+      />
+      {/* Center circle */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "600px",
+          height: "600px",
+          border: "2px solid oklch(0.72 0.2 148 / 0.08)",
+          borderRadius: "50%",
         }}
       />
 
@@ -137,9 +151,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         <div
           className="rounded-2xl p-6"
           style={{
-            background: "oklch(0.11 0.03 148 / 0.95)",
-            border: "1px solid oklch(0.72 0.2 148 / 0.2)",
-            boxShadow: "0 24px 64px oklch(0 0 0 / 0.5)",
+            background: "oklch(0.13 0.05 148 / 0.88)",
+            border: "1px solid oklch(0.72 0.2 148 / 0.25)",
+            boxShadow:
+              "0 24px 64px oklch(0 0 0 / 0.6), inset 0 1px 0 oklch(0.72 0.2 148 / 0.1)",
+            backdropFilter: "blur(16px)",
           }}
         >
           <Tabs defaultValue="signin">

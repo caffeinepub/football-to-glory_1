@@ -89,11 +89,25 @@ export class ExternalBlob {
         return this;
     }
 }
+export type PlayerQuery = string;
+export type Category = string;
 export interface ScoreEntry {
     email: string;
     score: bigint;
     timestamp: bigint;
     category: string;
+}
+export interface QuizScore {
+    score: bigint;
+    totalQuestions: bigint;
+    timestamp: bigint;
+    category: string;
+}
+export type Country = string;
+export interface UserStats {
+    quizScores: Array<QuizScore>;
+    countriesViewed: Array<string>;
+    playersSearched: Array<string>;
 }
 export interface UserProfile {
     name: string;
@@ -106,14 +120,13 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    getAllTopScores(): Promise<Array<ScoreEntry>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
-    getTopScores(category: string): Promise<Array<ScoreEntry>>;
-    getUserByEmail(email: string): Promise<{
-        email: string;
-    } | null>;
+    getGlobalLeaderboard(): Promise<Array<ScoreEntry>>;
+    getTopScores(): Promise<Array<ScoreEntry>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getUserScores(email: string): Promise<Array<ScoreEntry>>;
+    getUserStats(email: string): Promise<UserStats | null>;
     isCallerAdmin(): Promise<boolean>;
     loginUser(email: string, password: string): Promise<{
         __kind__: "ok";
@@ -131,8 +144,11 @@ export interface backendInterface {
     }>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveScore(email: string, score: bigint, category: string): Promise<void>;
+    submitQuizScore(email: string, score: bigint, category: Category, totalQuestions: bigint): Promise<void>;
+    trackCountryView(email: string, country: Country): Promise<void>;
+    trackPlayerSearch(email: string, playerQuery: PlayerQuery): Promise<void>;
 }
-import type { UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { UserProfile as _UserProfile, UserRole as _UserRole, UserStats as _UserStats } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -160,20 +176,6 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
-            return result;
-        }
-    }
-    async getAllTopScores(): Promise<Array<ScoreEntry>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAllTopScores();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAllTopScores();
             return result;
         }
     }
@@ -205,34 +207,32 @@ export class Backend implements backendInterface {
             return from_candid_UserRole_n4(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getTopScores(arg0: string): Promise<Array<ScoreEntry>> {
+    async getGlobalLeaderboard(): Promise<Array<ScoreEntry>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getTopScores(arg0);
+                const result = await this.actor.getGlobalLeaderboard();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getTopScores(arg0);
+            const result = await this.actor.getGlobalLeaderboard();
             return result;
         }
     }
-    async getUserByEmail(arg0: string): Promise<{
-        email: string;
-    } | null> {
+    async getTopScores(): Promise<Array<ScoreEntry>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getUserByEmail(arg0);
-                return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+                const result = await this.actor.getTopScores();
+                return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getUserByEmail(arg0);
-            return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+            const result = await this.actor.getTopScores();
+            return result;
         }
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
@@ -247,6 +247,34 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getUserProfile(arg0);
             return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getUserScores(arg0: string): Promise<Array<ScoreEntry>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserScores(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserScores(arg0);
+            return result;
+        }
+    }
+    async getUserStats(arg0: string): Promise<UserStats | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserStats(arg0);
+                return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserStats(arg0);
+            return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
         }
     }
     async isCallerAdmin(): Promise<boolean> {
@@ -331,6 +359,48 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async submitQuizScore(arg0: string, arg1: bigint, arg2: Category, arg3: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.submitQuizScore(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.submitQuizScore(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async trackCountryView(arg0: string, arg1: Country): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.trackCountryView(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.trackCountryView(arg0, arg1);
+            return result;
+        }
+    }
+    async trackPlayerSearch(arg0: string, arg1: PlayerQuery): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.trackPlayerSearch(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.trackPlayerSearch(arg0, arg1);
+            return result;
+        }
+    }
 }
 function from_candid_UserRole_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n5(_uploadFile, _downloadFile, value);
@@ -338,11 +408,7 @@ function from_candid_UserRole_n4(_uploadFile: (file: ExternalBlob) => Promise<Ui
 function from_candid_opt_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [{
-        email: string;
-    }]): {
-    email: string;
-} | null {
+function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserStats]): UserStats | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_variant_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {

@@ -11,7 +11,7 @@ export default {
       colors: {
         border: 'oklch(var(--border) / <alpha-value>)',
         input: 'oklch(var(--input) / <alpha-value>)',
-        ring: 'oklch(var(--ring) / <alpha-value>)',
+        ring: 'oklch(var(--ring))',
         background: 'oklch(var(--pitch-dark))',
         foreground: 'oklch(var(--foreground) / <alpha-value>)',
         primary: {
@@ -35,7 +35,7 @@ export default {
           foreground: 'oklch(var(--destructive-foreground) / <alpha-value>)',
         },
         card: {
-          DEFAULT: 'oklch(var(--card) / <alpha-value>)',
+          DEFAULT: 'oklch(var(--card-bg) / <alpha-value>)',
           foreground: 'oklch(var(--card-foreground) / <alpha-value>)',
         },
         popover: {

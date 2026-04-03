@@ -1,34 +1,50 @@
 # Football to Glory
 
 ## Current State
-- Full football web app with UCL seasons, World Cup data, player database (1500+ real players), countries tab (196 nations), league browser, live scores, quiz/trivia, fun records, and Internet Identity login in header.
-- QuizPage.tsx: multiple-choice quiz with unlimited questions and no leaderboard.
-- RandomTrivia.tsx: trivia cards with reveal/skip, no question limit, no leaderboard.
-- Backend: authorization mixin + userProfiles stored by Principal. No email/password auth. No leaderboard storage.
-- No dedicated sign-up/login page; app loads directly.
+The draft has expired. Rebuilding from scratch with all previously implemented features intact.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Dedicated full-screen sign-up / login page shown before app loads (email + password form)
-- Email/password registration and login backed by Motoko (store hashed credentials keyed by email)
-- Leaderboard backend: save quiz/trivia scores per user (email + score + timestamp), retrieve top 10 global scores
-- Quiz limited to exactly 10 questions per session with Next Question button
-- Trivia limited to exactly 10 items per session with Next Question button
-- Leaderboard modal/popup shown after completing 10 questions, displaying top 10 scores globally
+- Rebuild from expired state with all Version 20 features
+- Verified player stats for all major legends (goals official+unofficial, assists, caps)
 
 ### Modify
-- App.tsx: gate entire app behind auth state; show login page if not signed in
-- QuizPage.tsx: slice questions to 10, add Next button flow, submit score to backend on completion, show leaderboard
-- RandomTrivia.tsx: slice trivia to 10, add Next button flow, submit score to backend on completion, show leaderboard
+- N/A (full rebuild)
 
 ### Remove
-- Internet Identity login button from header (replaced by email/password auth page)
+- N/A
 
 ## Implementation Plan
-1. Backend: add registerUser(email, password) and loginUser(email, password) functions; add saveScore(email, score, category) and getTopScores(category) returning top 10
-2. Frontend auth: LoginPage.tsx component with sign-up / sign-in tabs, email+password fields, calling backend
-3. App.tsx: track currentUser state; show LoginPage if null, main app if signed in
-4. QuizPage.tsx: limit to 10 questions, currentQuestionIndex state, Next button, score submission, LeaderboardModal
-5. RandomTrivia.tsx: same 10-item limit, Next button, score submission, LeaderboardModal
-6. Shared LeaderboardModal component showing top 10 scores
+
+### Backend (Motoko)
+- User authentication: email + password sign-up/login, session persistence
+- Quiz/Trivia score storage per user (date + score)
+- Global leaderboard: top 10 scores across all users
+- Profile data: quiz history, countries viewed, players searched
+
+### Frontend Features
+1. **Login/Sign-up page** -- Football-themed full-screen background, email+password form, shown at app start
+2. **Navigation tabs**: Home, Players, Countries, UCL Seasons, Live Scores, Quiz, Trivia, Fun Records, League Browser, Profile
+3. **Players tab** -- 2000+ real players, paginated 24 at a time, searchable/filterable, specific positions (ST, LW, RW, CAM, CF, CDM, RM, LM, CM, CB, RWB, LWB, LB, RB, GK), height (ft/in), weight (kg), goals (official + unofficial), assists, caps, player images from Wikipedia
+4. **Countries tab** -- All 196 FIFA nations grouped by confederation, clickable for full detail panel: FIFA ranking, confederation ranking, World Cup history, continental history, top scorers, current squad by specific position, legends, domestic leagues
+5. **UCL Seasons Browser** -- All seasons 1956-2026, drill-down to group stage and knockout rounds. 2025-26 corrected: Puskas Arena Budapest venue, correct Knockout Playoffs, R16, QF
+6. **Live Scores** -- TheSportsDB API, Live Now / Recent Results / Upcoming tabs, 6+ major leagues, player stat cards
+7. **Quiz** -- 10 questions per session, Next Question button, leaderboard popup at end showing top 10 global scores
+8. **Random Trivia** -- 10 items per session, Reveal Answer, rate Knew It / Learned It, leaderboard popup at end
+9. **Fun Records** -- Interesting football records page
+10. **League Browser** -- All major leagues → clubs → real players with height, weight, position, club logos from Wikipedia
+11. **Profile page** -- Quiz/trivia score history (date + score), countries viewed, players searched stats
+
+### Player Stats (Wikipedia-verified)
+- Cristiano Ronaldo: 964 goals (official + unofficial), 413 assists, 219 caps
+- Lionel Messi: 900 goals, 406 assists, 190 caps
+- Pelé: 1283 goals, 582 assists, 92 caps
+- Romário: 1000+ goals
+- Josef Bican: 805 goals
+- Gerd Müller: 735 goals, 68 caps
+- Ronaldo Nazário: 414 goals, 150 assists, 98 caps
+- Zlatan Ibrahimović: 571 goals, 297 assists, 120 caps
+- Neymar: 437 goals, 231 assists, 128 caps
+- Ronaldinho: 298 goals, 180 assists, 97 caps
+- Diego Maradona: 345 goals, 267 assists, 91 caps

@@ -2498,11 +2498,13 @@ export const countryDetails: Record<string, CountryDetail> = {
 
 import { additionalCountryDetails } from "./additionalCountries";
 import { moreCountryDetails } from "./moreCountries";
+import { remainingCountriesData } from "./remainingCountries";
 
 const allCountryDetails: Record<string, CountryDetail> = {
   ...countryDetails,
   ...additionalCountryDetails,
   ...moreCountryDetails,
+  ...remainingCountriesData,
 };
 
 export function getCountryDetail(countryName: string): CountryDetail | null {

@@ -40,7 +40,7 @@ export default function LeaderboardModal({
     if (!isOpen || !actor) return;
     setLoading(true);
     actor
-      .getAllTopScores()
+      .getTopScores()
       .then((all) => {
         // Filter by category, sort desc, take top 10
         const filtered = all

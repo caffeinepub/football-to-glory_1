@@ -10,6 +10,15 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export type Category = string;
+export type Country = string;
+export type PlayerQuery = string;
+export interface QuizScore {
+  'score' : bigint,
+  'totalQuestions' : bigint,
+  'timestamp' : bigint,
+  'category' : string,
+}
 export interface ScoreEntry {
   'email' : string,
   'score' : bigint,
@@ -20,15 +29,21 @@ export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface UserStats {
+  'quizScores' : Array<QuizScore>,
+  'countriesViewed' : Array<string>,
+  'playersSearched' : Array<string>,
+}
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'getAllTopScores' : ActorMethod<[], Array<ScoreEntry>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getTopScores' : ActorMethod<[string], Array<ScoreEntry>>,
-  'getUserByEmail' : ActorMethod<[string], [] | [{ 'email' : string }]>,
+  'getGlobalLeaderboard' : ActorMethod<[], Array<ScoreEntry>>,
+  'getTopScores' : ActorMethod<[], Array<ScoreEntry>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'getUserScores' : ActorMethod<[string], Array<ScoreEntry>>,
+  'getUserStats' : ActorMethod<[string], [] | [UserStats]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'loginUser' : ActorMethod<
     [string, string],
@@ -42,6 +57,12 @@ export interface _SERVICE {
   >,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveScore' : ActorMethod<[string, bigint, string], undefined>,
+  'submitQuizScore' : ActorMethod<
+    [string, bigint, Category, bigint],
+    undefined
+  >,
+  'trackCountryView' : ActorMethod<[string, Country], undefined>,
+  'trackPlayerSearch' : ActorMethod<[string, PlayerQuery], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

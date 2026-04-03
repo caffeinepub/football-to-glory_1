@@ -13,31 +13,42 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const ScoreEntry = IDL.Record({
   'email' : IDL.Text,
   'score' : IDL.Nat,
   'timestamp' : IDL.Int,
   'category' : IDL.Text,
 });
-export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const QuizScore = IDL.Record({
+  'score' : IDL.Nat,
+  'totalQuestions' : IDL.Nat,
+  'timestamp' : IDL.Int,
+  'category' : IDL.Text,
+});
+export const UserStats = IDL.Record({
+  'quizScores' : IDL.Vec(QuizScore),
+  'countriesViewed' : IDL.Vec(IDL.Text),
+  'playersSearched' : IDL.Vec(IDL.Text),
+});
+export const Category = IDL.Text;
+export const Country = IDL.Text;
+export const PlayerQuery = IDL.Text;
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-  'getAllTopScores' : IDL.Func([], [IDL.Vec(ScoreEntry)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-  'getTopScores' : IDL.Func([IDL.Text], [IDL.Vec(ScoreEntry)], ['query']),
-  'getUserByEmail' : IDL.Func(
-      [IDL.Text],
-      [IDL.Opt(IDL.Record({ 'email' : IDL.Text }))],
-      ['query'],
-    ),
+  'getGlobalLeaderboard' : IDL.Func([], [IDL.Vec(ScoreEntry)], ['query']),
+  'getTopScores' : IDL.Func([], [IDL.Vec(ScoreEntry)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'getUserScores' : IDL.Func([IDL.Text], [IDL.Vec(ScoreEntry)], ['query']),
+  'getUserStats' : IDL.Func([IDL.Text], [IDL.Opt(UserStats)], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'loginUser' : IDL.Func(
       [IDL.Text, IDL.Text],
@@ -51,6 +62,9 @@ export const idlService = IDL.Service({
     ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'saveScore' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [], []),
+  'submitQuizScore' : IDL.Func([IDL.Text, IDL.Nat, Category, IDL.Nat], [], []),
+  'trackCountryView' : IDL.Func([IDL.Text, Country], [], []),
+  'trackPlayerSearch' : IDL.Func([IDL.Text, PlayerQuery], [], []),
 });
 
 export const idlInitArgs = [];
@@ -61,31 +75,42 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
   const ScoreEntry = IDL.Record({
     'email' : IDL.Text,
     'score' : IDL.Nat,
     'timestamp' : IDL.Int,
     'category' : IDL.Text,
   });
-  const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const QuizScore = IDL.Record({
+    'score' : IDL.Nat,
+    'totalQuestions' : IDL.Nat,
+    'timestamp' : IDL.Int,
+    'category' : IDL.Text,
+  });
+  const UserStats = IDL.Record({
+    'quizScores' : IDL.Vec(QuizScore),
+    'countriesViewed' : IDL.Vec(IDL.Text),
+    'playersSearched' : IDL.Vec(IDL.Text),
+  });
+  const Category = IDL.Text;
+  const Country = IDL.Text;
+  const PlayerQuery = IDL.Text;
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-    'getAllTopScores' : IDL.Func([], [IDL.Vec(ScoreEntry)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-    'getTopScores' : IDL.Func([IDL.Text], [IDL.Vec(ScoreEntry)], ['query']),
-    'getUserByEmail' : IDL.Func(
-        [IDL.Text],
-        [IDL.Opt(IDL.Record({ 'email' : IDL.Text }))],
-        ['query'],
-      ),
+    'getGlobalLeaderboard' : IDL.Func([], [IDL.Vec(ScoreEntry)], ['query']),
+    'getTopScores' : IDL.Func([], [IDL.Vec(ScoreEntry)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'getUserScores' : IDL.Func([IDL.Text], [IDL.Vec(ScoreEntry)], ['query']),
+    'getUserStats' : IDL.Func([IDL.Text], [IDL.Opt(UserStats)], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'loginUser' : IDL.Func(
         [IDL.Text, IDL.Text],
@@ -99,6 +124,13 @@ export const idlFactory = ({ IDL }) => {
       ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'saveScore' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [], []),
+    'submitQuizScore' : IDL.Func(
+        [IDL.Text, IDL.Nat, Category, IDL.Nat],
+        [],
+        [],
+      ),
+    'trackCountryView' : IDL.Func([IDL.Text, Country], [], []),
+    'trackPlayerSearch' : IDL.Func([IDL.Text, PlayerQuery], [], []),
   });
 };
 
